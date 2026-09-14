@@ -284,7 +284,7 @@ def extract_elf(
     work = src
     tmp = None
     if stripped:
-        tmp = Path(keep_stripped) if keep_stripped else Path(tempfile.mkdtemp(prefix="uwm-strip-")) / (src.stem + ".stripped")
+        tmp = Path(keep_stripped) if keep_stripped else Path(tempfile.mkdtemp(prefix="mwm-decompiler-strip-")) / (src.stem + ".stripped")
         work = strip_copy(src, tmp)
     harvest = harvest_elf(str(work))
     ctx = LiftContext(
