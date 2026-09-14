@@ -1,0 +1,9 @@
+/venv
+__pycache__/
+**/__pycache__/
+*.pyc
+src/output/
+.deps/
+*.elf.stripped
+.DS_Store
+abc.history

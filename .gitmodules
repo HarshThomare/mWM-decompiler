@@ -1,0 +1,9 @@
+[submodule "third_party/flexo"]
+	path = third_party/flexo
+	url = https://github.com/joeywang4/Flexo.git
+[submodule "third_party/gitm"]
+	path = third_party/gitm
+	url = https://github.com/joeywang4/Transient-Weird-Machine.git
+[submodule "third_party/tae"]
+	path = third_party/tae
+	url = https://github.com/joeywang4/Weird-Programs.git

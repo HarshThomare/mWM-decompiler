@@ -1,0 +1,11 @@
+Reply with only JSON. Use only these keys. If unsure use "unknown".
+
+Rank these already-verified interpretations of the typed µWM subgraph. Do not invent WR kinds, merges, window I/O, or LUT functions.
+
+Subgraph:
+{ir}
+
+Candidates:
+{candidates}
+
+Return: {"ranking": ["<candidate id>", ...], "note": "<short or unknown>"}

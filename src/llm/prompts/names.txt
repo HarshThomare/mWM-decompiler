@@ -1,0 +1,8 @@
+Reply with only JSON. Use only these keys. If unsure use "unknown".
+
+Propose C identifiers for nodes in this verified typed µWM subgraph. Do not change connectivity, resources, or truth tables.
+
+Subgraph:
+{ir}
+
+Return: {"names": {"<existing name>": "<identifier or unknown>"}}

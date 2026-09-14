@@ -1,0 +1,8 @@
+Reply with only JSON. Use only these keys. If unsure use "unknown".
+
+Cluster operations that already exist in this verified typed µWM subgraph. Do not merge WRs or retarget wires.
+
+Subgraph:
+{ir}
+
+Return: {"clusters": [{"name": "<identifier or unknown>", "members": ["<transition>", ...]}]}
