@@ -1,0 +1,9 @@
+[2026-09-15T07:20:00.008452+00:00] copy /u/hthomare/mWM-decompiler/third_party/flexo/circuits/AES/aes_round.elf -> /u/hthomare/mWM-decompiler/runs/flexo/aes/artifacts/input/anonymized.elf
+[2026-09-15T07:20:00.021992+00:00] strip --strip-all anonymized.elf
+[2026-09-15T07:20:00.071389+00:00] harvest_elf(/u/hthomare/mWM-decompiler/runs/flexo/aes/artifacts/input/anonymized.elf)
+[2026-09-15T07:20:10.244289+00:00] harvest: fragments=2 events=25214 kinds={'ARCH_BRANCH': 2, 'WINDOW_OPEN': 1, 'ARCH_COMPUTE': 9976, 'STATE_CLEAR': 10184, 'WINDOW_EXTEND': 5048, 'STATE_OBSERVE': 2, 'STATE_READ': 1}
+[2026-09-15T07:20:10.296644+00:00] propose_relation(c1 events=118836 sent=96)
+[2026-09-15T07:20:33.038710+00:00] propose_relation(c0 events=4 sent=4)
+[2026-09-15T07:20:41.089347+00:00] lift_from_harvest llm=True max_windows=16
+[2026-09-15T07:20:49.324433+00:00] IR: nets=0 relations=0 derived={} validation={}
+[2026-09-15T07:20:49.338975+00:00] done llm_ok=True harvest_frags=2

@@ -1,0 +1,16 @@
+Reply with only JSON. Use only these keys. If unsure set form to "unknown".
+
+Propose one derived form for this harvested fragment. This is a hypothesis only; it is not a derived interpretation.
+Use only the event and dataflow evidence below. Do not use native logs, architecture family labels, or resource/trigger names.
+You must cite event ids that appear in the sampled events list. Put observed claims in facts and conclusions that go beyond the events in inferences. Do not mix the two.
+Assign confidence in [0.0, 1.0].
+
+Evidence may include a summary plus a stratified sample. When truncated is true, use the kind/insn counts; do not invent a form from a handful of architectural arithmetic at the start or end of a large function.
+Occupancy loads (STATE_READ of pointer bytes) plus indexed fills and an RSB window (WINDOW_OPEN at a call, WINDOW_SQUASH at ret) support boolean_lut. Repeating STATE_CLEAR / stride imul without a closed window is wiring, not the function. Stack-relative dword tables and LCG-style immediates are usually a permutation harness; they are not enough for indexed_memory. If the sample does not close a state/window relation, set form to unknown.
+
+Supported forms: unknown, boolean_lut, bitvector, transition_system, indexed_memory, branch_dependent, sequential_machine
+
+Evidence:
+{evidence}
+
+Return: {"form": "<form>", "confidence": <0.0-1.0>, "cited_events": ["<event id>", ...], "facts": ["<observed claim>", ...], "inferences": ["<inferred claim>", ...], "note": "<short or unknown>"}

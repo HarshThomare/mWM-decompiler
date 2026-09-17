@@ -1,8 +1,8 @@
 Reply with only JSON. Use only these keys. If unsure use "unknown".
 
-Cluster operations that already exist in this verified typed µWM subgraph. Do not merge WRs or retarget wires.
+Cluster events that already exist in this verified relation subgraph. Do not invent events or derived forms.
 
 Subgraph:
 {ir}
 
-Return: {"clusters": [{"name": "<identifier or unknown>", "members": ["<transition>", ...]}]}
+Return: {"clusters": [{"name": "<identifier or unknown>", "members": ["<event id>", ...]}]}

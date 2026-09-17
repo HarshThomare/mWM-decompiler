@@ -1,0 +1,1383 @@
+{
+  "source": "/u/hthomare/mWM-decompiler/third_party/flexo/circuits/gates/and.elf",
+  "n_nets": 1,
+  "n_relations": 1,
+  "rejected": [],
+  "lift_error": null,
+  "relations": [
+    {
+      "name": "and",
+      "m_in": [
+        {
+          "name": "and.i0",
+          "spec": "cache_occupancy",
+          "persistence": "volatile",
+          "phys_key": "i0",
+          "encoding": "dual_rail",
+          "width": 1,
+          "destructive_read": true
+        },
+        {
+          "name": "and.i1",
+          "spec": "cache_occupancy",
+          "persistence": "volatile",
+          "phys_key": "i1",
+          "encoding": "dual_rail",
+          "width": 1,
+          "destructive_read": true
+        },
+        {
+          "name": "and.w4",
+          "spec": "cache_occupancy",
+          "persistence": "volatile",
+          "phys_key": "w4",
+          "encoding": "dual_rail",
+          "width": 1,
+          "destructive_read": true
+        }
+      ],
+      "m_out": [
+        {
+          "name": "and.i0.out",
+          "spec": "cache_occupancy",
+          "persistence": "volatile",
+          "phys_key": "i0",
+          "encoding": "dual_rail",
+          "width": 1,
+          "destructive_read": true
+        },
+        {
+          "name": "and.i1.out",
+          "spec": "cache_occupancy",
+          "persistence": "volatile",
+          "phys_key": "i1",
+          "encoding": "dual_rail",
+          "width": 1,
+          "destructive_read": true
+        },
+        {
+          "name": "and.w4.out",
+          "spec": "cache_occupancy",
+          "persistence": "volatile",
+          "phys_key": "w4",
+          "encoding": "dual_rail",
+          "width": 1,
+          "destructive_read": true
+        }
+      ],
+      "a_inputs": [
+        {
+          "name": "c1.stride",
+          "domain": "int",
+          "transient": false,
+          "binding": "0x240"
+        },
+        {
+          "name": "i0",
+          "domain": "bit",
+          "transient": false,
+          "width": 1,
+          "binding": "i0"
+        },
+        {
+          "name": "i1",
+          "domain": "bit",
+          "transient": false,
+          "width": 1,
+          "binding": "i1"
+        }
+      ],
+      "t_constraints": [
+        {
+          "name": "c1.T",
+          "kind": "window",
+          "related_events": [
+            "c1.e1",
+            "c1.e85",
+            "c1.e87"
+          ]
+        }
+      ],
+      "events": [
+        {
+          "id": "and.e0",
+          "kind": "STATE_OBSERVE",
+          "addr": 4560,
+          "insn": "call",
+          "provenance": [
+            "cfg.call_timer"
+          ],
+          "note": "cfg.call_timer"
+        },
+        {
+          "id": "and.e1",
+          "kind": "WINDOW_OPEN",
+          "addr": 4560,
+          "insn": "call",
+          "provenance": [
+            "cfg.call_rsb"
+          ],
+          "note": "cfg.call_rsb"
+        },
+        {
+          "id": "and.e2",
+          "kind": "ARCH_MEMORY",
+          "addr": 4569,
+          "insn": "mov",
+          "operand": "rbp+-0x48",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e3",
+          "kind": "ARCH_MEMORY",
+          "addr": 4576,
+          "insn": "mov",
+          "operand": "rbp+-0x3a",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e4",
+          "kind": "ARCH_MEMORY",
+          "addr": 4582,
+          "insn": "mov",
+          "operand": "rbp+-0x39",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e5",
+          "kind": "ARCH_MEMORY",
+          "addr": 4590,
+          "insn": "mov",
+          "operand": "rbp+-0x34",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e6",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4593,
+          "insn": "xor",
+          "operand": "eax, eax",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e7",
+          "kind": "ARCH_MEMORY",
+          "addr": 4595,
+          "insn": "mov",
+          "operand": "rbp+-0x38",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e8",
+          "kind": "ARCH_MEMORY",
+          "addr": 4598,
+          "insn": "mov",
+          "operand": "rbp+-0x38",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e9",
+          "kind": "ARCH_MEMORY",
+          "addr": 4604,
+          "insn": "mov",
+          "operand": "rbp+rax*4+-0x30",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e10",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4608,
+          "insn": "add",
+          "operand": "ecx, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e11",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4611,
+          "insn": "xor",
+          "operand": "eax, eax",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e12",
+          "kind": "ARCH_MEMORY",
+          "addr": 4616,
+          "insn": "mov",
+          "operand": "rbp+-0x38",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e13",
+          "kind": "ARCH_MEMORY",
+          "addr": 4619,
+          "insn": "mov",
+          "operand": "rbp+-0x4c",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e14",
+          "kind": "ARCH_MEMORY",
+          "addr": 4628,
+          "insn": "mov",
+          "operand": "rbp+-0x4c",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e15",
+          "kind": "ARCH_MEMORY",
+          "addr": 4631,
+          "insn": "mov",
+          "operand": "rbp+-0x54",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e16",
+          "kind": "ARCH_MEMORY",
+          "addr": 4634,
+          "insn": "mov",
+          "operand": "rbp+-0x34",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e17",
+          "kind": "ARCH_MEMORY",
+          "addr": 4637,
+          "insn": "mov",
+          "operand": "rbp+-0x50",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e18",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4645,
+          "insn": "sub",
+          "operand": "ecx, edx",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e19",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4647,
+          "insn": "xor",
+          "operand": "edx, edx",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e20",
+          "kind": "ARCH_MEMORY",
+          "addr": 4651,
+          "insn": "mov",
+          "operand": "rbp+-0x54",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e21",
+          "kind": "ARCH_MEMORY",
+          "addr": 4656,
+          "insn": "mov",
+          "operand": "rbp+-0x50",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e22",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4661,
+          "insn": "add",
+          "operand": "ecx, esi",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e23",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4663,
+          "insn": "imul",
+          "operand": "edx, edx, 0x19660d",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e24",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4669,
+          "insn": "add",
+          "operand": "edx, 0x3c6ef35f",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e25",
+          "kind": "ARCH_MEMORY",
+          "addr": 4675,
+          "insn": "mov",
+          "operand": "rbp+-0x34",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e26",
+          "kind": "ARCH_MEMORY",
+          "addr": 4681,
+          "insn": "mov",
+          "operand": "rbp+rdx*4+-0x30",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e27",
+          "kind": "ARCH_MEMORY",
+          "addr": 4688,
+          "insn": "mov",
+          "operand": "rbp+rdx*4+-0x30",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e28",
+          "kind": "ARCH_MEMORY",
+          "addr": 4695,
+          "insn": "mov",
+          "operand": "rbp+rcx*4+-0x30",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e29",
+          "kind": "ARCH_MEMORY",
+          "addr": 4702,
+          "insn": "mov",
+          "operand": "rbp+rcx*4+-0x30",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e30",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4706,
+          "insn": "add",
+          "operand": "eax, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e31",
+          "kind": "ARCH_MEMORY",
+          "addr": 4712,
+          "insn": "mov",
+          "operand": "rbp+-0x4c",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e32",
+          "kind": "ARCH_MEMORY",
+          "addr": 4721,
+          "insn": "mov",
+          "operand": "rbp+-0x39",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e33",
+          "kind": "ARCH_MEMORY",
+          "addr": 4724,
+          "insn": "mov",
+          "operand": "rbp+-0x3a",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e34",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4730,
+          "insn": "add",
+          "operand": "r9, -0x18c0",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e35",
+          "kind": "ARCH_MEMORY",
+          "addr": 4740,
+          "insn": "mov",
+          "operand": "rbp+-0x18",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e36",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4743,
+          "insn": "add",
+          "operand": "rdx, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e37",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4747,
+          "insn": "imul",
+          "operand": "0x240",
+          "provenance": [
+            "semantic.wr_stride",
+            "semantic.wr_stride=0x240"
+          ],
+          "note": "semantic.wr_stride",
+          "attrs": {
+            "stride": 576,
+            "spec_hint": "cache_occupancy",
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e38",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4757,
+          "insn": "add",
+          "operand": "rdi, r10",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e39",
+          "kind": "ARCH_MEMORY",
+          "addr": 4760,
+          "insn": "mov",
+          "operand": "rbp+-0x14",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e40",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4763,
+          "insn": "add",
+          "operand": "rdx, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e41",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4767,
+          "insn": "imul",
+          "operand": "0x240",
+          "provenance": [
+            "semantic.wr_stride",
+            "semantic.wr_stride=0x240"
+          ],
+          "note": "semantic.wr_stride",
+          "attrs": {
+            "stride": 576,
+            "spec_hint": "cache_occupancy",
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e42",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4777,
+          "insn": "add",
+          "operand": "rsi, r8",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e43",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4783,
+          "insn": "sub",
+          "operand": "r11, r10",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e44",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4786,
+          "insn": "and",
+          "operand": "cl, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e45",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4797,
+          "insn": "imul",
+          "operand": "rcx, r11",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e46",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4801,
+          "insn": "add",
+          "operand": "rcx, r10",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e47",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4804,
+          "insn": "sub",
+          "operand": "r10, r8",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e48",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4807,
+          "insn": "imul",
+          "operand": "rdx, r10",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e49",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4811,
+          "insn": "add",
+          "operand": "rdx, r8",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e50",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4822,
+          "insn": "add",
+          "operand": "rcx, rdx",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e51",
+          "kind": "STATE_CLEAR",
+          "addr": 4825,
+          "insn": "clflush",
+          "operand": "rcx",
+          "subject": "cache_occupancy",
+          "provenance": [
+            "cacm.flush",
+            "flexo.copy_prop.dual_rail"
+          ],
+          "note": "cacm.flush",
+          "attrs": {
+            "line": "dcache",
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e52",
+          "kind": "ARCH_MEMORY",
+          "addr": 4828,
+          "insn": "mov",
+          "operand": "rbp+-0x20",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e53",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4831,
+          "insn": "add",
+          "operand": "rcx, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e54",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4835,
+          "insn": "imul",
+          "operand": "0x240",
+          "provenance": [
+            "semantic.wr_stride",
+            "semantic.wr_stride=0x240"
+          ],
+          "note": "semantic.wr_stride",
+          "attrs": {
+            "stride": 576,
+            "spec_hint": "cache_occupancy",
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e55",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4845,
+          "insn": "add",
+          "operand": "rdx, r11",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e56",
+          "kind": "ARCH_MEMORY",
+          "addr": 4848,
+          "insn": "mov",
+          "operand": "rbp+-0x1c",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e57",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4851,
+          "insn": "add",
+          "operand": "rcx, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e58",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4855,
+          "insn": "imul",
+          "operand": "0x240",
+          "provenance": [
+            "semantic.wr_stride",
+            "semantic.wr_stride=0x240"
+          ],
+          "note": "semantic.wr_stride",
+          "attrs": {
+            "stride": 576,
+            "spec_hint": "cache_occupancy",
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e59",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4865,
+          "insn": "add",
+          "operand": "rcx, r10",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e60",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4871,
+          "insn": "sub",
+          "operand": "rbx, r11",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e61",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4874,
+          "insn": "and",
+          "operand": "al, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e62",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4885,
+          "insn": "imul",
+          "operand": "rax, rbx",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e63",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4889,
+          "insn": "add",
+          "operand": "rax, r11",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e64",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4892,
+          "insn": "sub",
+          "operand": "r11, r10",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e65",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4895,
+          "insn": "imul",
+          "operand": "r8, r11",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e66",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4899,
+          "insn": "add",
+          "operand": "r8, r10",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e67",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4910,
+          "insn": "add",
+          "operand": "rax, r8",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e68",
+          "kind": "STATE_CLEAR",
+          "addr": 4913,
+          "insn": "clflush",
+          "operand": "rax",
+          "subject": "cache_occupancy",
+          "provenance": [
+            "cacm.flush",
+            "flexo.copy_prop.dual_rail"
+          ],
+          "note": "cacm.flush",
+          "attrs": {
+            "line": "dcache",
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e69",
+          "kind": "ARCH_MEMORY",
+          "addr": 4916,
+          "insn": "mov",
+          "operand": "rbp+-0x10",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e70",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4919,
+          "insn": "add",
+          "operand": "rax, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e71",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4923,
+          "insn": "imul",
+          "operand": "0x240",
+          "provenance": [
+            "semantic.wr_stride",
+            "semantic.wr_stride=0x240"
+          ],
+          "note": "semantic.wr_stride",
+          "attrs": {
+            "stride": 576,
+            "spec_hint": "cache_occupancy",
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e72",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4933,
+          "insn": "sub",
+          "operand": "r10, 0x100",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e73",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4943,
+          "insn": "add",
+          "operand": "rax, r8",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e74",
+          "kind": "ARCH_MEMORY",
+          "addr": 4946,
+          "insn": "mov",
+          "operand": "rbp+-0x60",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e75",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4953,
+          "insn": "add",
+          "operand": "r8, r10",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e76",
+          "kind": "STATE_CLEAR",
+          "addr": 4956,
+          "insn": "clflush",
+          "operand": "rax",
+          "subject": "cache_occupancy",
+          "provenance": [
+            "cacm.flush",
+            "flexo.copy_prop.dual_rail"
+          ],
+          "note": "cacm.flush",
+          "attrs": {
+            "line": "dcache",
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e77",
+          "kind": "ARCH_MEMORY",
+          "addr": 4959,
+          "insn": "mov",
+          "operand": "rbp+-0xc",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e78",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4962,
+          "insn": "add",
+          "operand": "rax, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e79",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4966,
+          "insn": "imul",
+          "operand": "0x240",
+          "provenance": [
+            "semantic.wr_stride",
+            "semantic.wr_stride=0x240"
+          ],
+          "note": "semantic.wr_stride",
+          "attrs": {
+            "stride": 576,
+            "spec_hint": "cache_occupancy",
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e80",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4976,
+          "insn": "sub",
+          "operand": "r10, 0x100",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e81",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4986,
+          "insn": "add",
+          "operand": "rax, r11",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e82",
+          "kind": "ARCH_MEMORY",
+          "addr": 4989,
+          "insn": "mov",
+          "operand": "rbp+-0x68",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e83",
+          "kind": "ARCH_COMPUTE",
+          "addr": 4993,
+          "insn": "add",
+          "operand": "r9, r10",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e84",
+          "kind": "STATE_CLEAR",
+          "addr": 4996,
+          "insn": "clflush",
+          "operand": "rax",
+          "subject": "cache_occupancy",
+          "provenance": [
+            "cacm.flush",
+            "flexo.copy_prop.dual_rail"
+          ],
+          "note": "cacm.flush",
+          "attrs": {
+            "line": "dcache",
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e85",
+          "kind": "WINDOW_EXTEND",
+          "addr": 4999,
+          "insn": "mfence",
+          "provenance": [
+            "semantic.fence"
+          ],
+          "note": "semantic.fence",
+          "attrs": {
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e86",
+          "kind": "ARCH_MEMORY",
+          "addr": 5007,
+          "insn": "mov",
+          "operand": "rbp+-0x68",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e87",
+          "kind": "WINDOW_EXTEND",
+          "addr": 5011,
+          "insn": "mfence",
+          "provenance": [
+            "semantic.fence"
+          ],
+          "note": "semantic.fence",
+          "attrs": {
+            "func": 4560
+          }
+        },
+        {
+          "id": "and.e88",
+          "kind": "ARCH_MEMORY",
+          "addr": 5019,
+          "insn": "mov",
+          "operand": "rbp+-0x60",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e89",
+          "kind": "ARCH_MEMORY",
+          "addr": 5032,
+          "insn": "mov",
+          "operand": "rbp+-0x55",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e90",
+          "kind": "ARCH_MEMORY",
+          "addr": 5040,
+          "insn": "mov",
+          "operand": "rbp+-0x55",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e91",
+          "kind": "ARCH_MEMORY",
+          "addr": 5043,
+          "insn": "mov",
+          "operand": "rbp+-0x48",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e92",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5056,
+          "insn": "xor",
+          "operand": "al, dl",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e93",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5058,
+          "insn": "xor",
+          "operand": "al, 0xff",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e94",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5060,
+          "insn": "or",
+          "operand": "al, 0",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e95",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5062,
+          "insn": "and",
+          "operand": "dl, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e96",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5065,
+          "insn": "or",
+          "operand": "dl, 0",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e97",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5068,
+          "insn": "or",
+          "operand": "dl, 0",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e98",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5071,
+          "insn": "or",
+          "operand": "dl, 0",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e99",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5074,
+          "insn": "or",
+          "operand": "dl, 0",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e100",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5077,
+          "insn": "or",
+          "operand": "dl, 0",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e101",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5080,
+          "insn": "or",
+          "operand": "dl, 0",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e102",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5083,
+          "insn": "or",
+          "operand": "dl, 0",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        },
+        {
+          "id": "and.e103",
+          "kind": "STATE_WRITE",
+          "addr": 5086,
+          "insn": "mov",
+          "operand": "rcx",
+          "subject": "cache_occupancy",
+          "provenance": [
+            "semantic.window_fill",
+            "flexo.copy_prop.dual_rail"
+          ],
+          "note": "semantic.window_fill"
+        },
+        {
+          "id": "and.e104",
+          "kind": "ARCH_MEMORY",
+          "addr": 5086,
+          "insn": "mov",
+          "operand": "rcx",
+          "provenance": [
+            "semantic.window_mem"
+          ],
+          "note": "semantic.window_mem"
+        },
+        {
+          "id": "and.e105",
+          "kind": "ARCH_COMPUTE",
+          "addr": 5088,
+          "insn": "and",
+          "operand": "al, 1",
+          "provenance": [
+            "semantic.window_alu"
+          ],
+          "note": "semantic.window_alu"
+        }
+      ],
+      "validation": "confirmed",
+      "derived": "boolean_lut",
+      "source": "/u/hthomare/mWM-decompiler/third_party/flexo/circuits/gates/and.elf",
+      "entry": 4560,
+      "exit": 5104,
+      "confidence": 1.0,
+      "evidence": {
+        "observations": [
+          {
+            "static": "dual_gate",
+            "n_gates": 1,
+            "table_id": 8,
+            "func_addr": 4560
+          }
+        ],
+        "confidence": 1.0
+      },
+      "interpretation": {
+        "form": "boolean_lut",
+        "payload": {
+          "n_in": 2,
+          "n_out": 1,
+          "table_id": 8,
+          "gate_table": {
+            "00": 0,
+            "01": 0,
+            "10": 0,
+            "11": 1
+          },
+          "gate_tables": [
+            {
+              "00": 0,
+              "01": 0,
+              "10": 0,
+              "11": 1
+            }
+          ],
+          "inputs": [
+            "i0",
+            "i1"
+          ],
+          "outputs": [
+            "w4"
+          ]
+        }
+      },
+      "net": "and",
+      "compose": "boolean_lut"
+    }
+  ]
+}

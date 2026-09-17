@@ -1,0 +1,26 @@
+{
+  "original_path": "/u/hthomare/mWM-decompiler/third_party/flexo/circuits/gates/and.elf",
+  "original_source": "/u/hthomare/mWM-decompiler/third_party/flexo/circuits/gates/and.cpp",
+  "anonymized_path": "/u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/input/anonymized.elf",
+  "strip_command": [
+    "strip",
+    "--strip-all",
+    "/u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/input/anonymized.elf"
+  ],
+  "strip_ok": true,
+  "anonymized_symbols": "none",
+  "sha256_original": "daa99ac9153f6df23877f40868f0476d18290f8968fe6640ba5f4e2b1ef0d5aa",
+  "sha256_anonymized": "21e44e36d5ab1577e3747daaa71bf120ffab7d62e7ea0d94a7c0dce6e574e32f",
+  "original_size": 17112,
+  "anonymized_size": 14840,
+  "build": {
+    "method": "documented Flexo Docker/Podman compile (gates Makefile flags: -O1 -fno-inline-functions)",
+    "wr_offset": 576,
+    "ret_wm_div_rounds": 5,
+    "flexo_circuit_wires": 5,
+    "flexo_circuit_gates": 1,
+    "original_dualgate_symbols": 1,
+    "original_weird_symbol": "_Z12__weird__andbbRb"
+  },
+  "note": "Pipeline consumed only anonymized.elf for harvest/lift/propose_relation. Original AND ELF was not stripped or renamed."
+}

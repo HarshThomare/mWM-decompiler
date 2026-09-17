@@ -1,8 +1,9 @@
-"""Export a Flexo µWM net as a single-rail combinational BLIF."""
+"""Export boolean_lut relations as a single-rail combinational BLIF."""
 
 from typing import Iterable, List, Set
 
-from .net import Net, TransKind
+from .net import Net
+from .relation import DerivedForm
 
 
 def _lut_rows(inputs: List[str], output: str, table) -> List[str]:
@@ -11,7 +12,9 @@ def _lut_rows(inputs: List[str], output: str, table) -> List[str]:
     n_in = len(inputs)
     for bits in range(1 << n_in):
         key = tuple((bits >> k) & 1 for k in range(n_in))
-        bit = table.get(key, 0) if table else 0
+        bit = 0
+        if table:
+            bit = table.get(key, table.get("".join(map(str, key)), 0))
         if bit:
             ones += 1
             row = "".join(str((bits >> k) & 1) for k in range(n_in))
@@ -23,14 +26,19 @@ def _lut_rows(inputs: List[str], output: str, table) -> List[str]:
     return lines
 
 
+def _lut_payloads(net: Net):
+    for r in net.relations.values():
+        if r.derived_form() != DerivedForm.BOOLEAN_LUT or r.interpretation is None:
+            continue
+        yield r.interpretation.payload
+
+
 def net_ports(net: Net):
     used_in: Set[str] = set()
     used_out: Set[str] = set()
-    for t in net.transitions.values():
-        if t.kind != TransKind.GATE:
-            continue
-        used_in.update(t.inputs)
-        used_out.update(t.outputs)
+    for p in _lut_payloads(net):
+        used_in.update(p.get("inputs") or [])
+        used_out.update(p.get("outputs") or [])
     pis = sorted(used_in - used_out)
     pos = sorted(used_out - used_in)
     if not pos:
@@ -46,14 +54,14 @@ def net_to_blif(net: Net, model: str = None) -> str:
         lines.append(".inputs " + " ".join(pis))
     if pos:
         lines.append(".outputs " + " ".join(pos))
-    for t in net.transitions.values():
-        if t.kind != TransKind.GATE:
-            continue
-        tables = t.gate_tables or ([t.gate_table] if t.gate_table else [])
-        n_out = max(t.n_out, len(t.outputs), len(tables))
-        for i, out in enumerate(t.outputs[:n_out]):
-            table = tables[i] if i < len(tables) else t.gate_table
-            lines.extend(_lut_rows(t.inputs, out, table))
+    for p in _lut_payloads(net):
+        inputs = list(p.get("inputs") or [])
+        outputs = list(p.get("outputs") or [])
+        tables = p.get("gate_tables") or ([p.get("gate_table")] if p.get("gate_table") else [])
+        n_out = max(int(p.get("n_out") or 0), len(outputs), len(tables))
+        for i, out in enumerate(outputs[:n_out] or [f"o{i}" for i in range(n_out)]):
+            table = tables[i] if i < len(tables) else p.get("gate_table")
+            lines.extend(_lut_rows(inputs, out, table))
     lines.append(".end")
     lines.append("")
     return "\n".join(lines)
@@ -63,23 +71,6 @@ def rename_ports(blif: str, inputs: Iterable[str], outputs: Iterable[str]) -> st
     """Rewrite .inputs/.outputs names in order (for ABC cec)."""
     ins = list(inputs)
     outs = list(outputs)
-    out_lines = []
-    for line in blif.splitlines():
-        if line.startswith(".inputs "):
-            old = line.split()[1:]
-            mapping = {o: n for o, n in zip(old, ins)} if len(old) == len(ins) else {}
-            if mapping:
-                # apply throughout later; here just rewrite header
-                out_lines.append(".inputs " + " ".join(ins))
-                continue
-        if line.startswith(".outputs "):
-            old = line.split()[1:]
-            if len(old) == len(outs):
-                out_lines.append(".outputs " + " ".join(outs))
-                continue
-        out_lines.append(line)
-    text = "\n".join(out_lines)
-    # remap body names if counts match
     in_old = None
     out_old = None
     for line in blif.splitlines():
@@ -94,7 +85,6 @@ def rename_ports(blif: str, inputs: Iterable[str], outputs: Iterable[str]) -> st
         mapping.update(zip(out_old, outs))
     if not mapping:
         return blif if blif.endswith("\n") else blif + "\n"
-    # rebuild from original with mapping
     rebuilt = []
     for line in blif.splitlines():
         if line.startswith(".model"):

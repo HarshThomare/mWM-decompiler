@@ -1,0 +1,18 @@
+[2026-09-15T19:26:43.851173+00:00] copy /u/hthomare/mWM-decompiler/third_party/flexo/circuits/gates/and.elf -> /u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/input/anonymized.elf
+[2026-09-15T19:26:43.853525+00:00] strip --strip-all anonymized.elf
+[2026-09-15T19:26:43.966615+00:00] harvest_elf(/u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/input/anonymized.elf)
+[2026-09-15T19:26:44.027055+00:00] harvest: fragments=3 events=19 kinds={'ARCH_BRANCH': 3, 'WINDOW_OPEN': 1, 'ARCH_COMPUTE': 6, 'STATE_CLEAR': 4, 'WINDOW_EXTEND': 2, 'STATE_OBSERVE': 2, 'STATE_READ': 1}
+[2026-09-15T19:26:44.027639+00:00] propose_relation(c1 events=106 sent=96)
+[2026-09-15T19:27:01.267093+00:00] propose_relation(c0 events=4 sent=4)
+[2026-09-15T19:27:07.833988+00:00] propose_relation(c2 events=2 sent=2)
+[2026-09-15T19:27:13.813071+00:00] lift_from_harvest llm=True max_windows=16
+[2026-09-15T19:27:37.845735+00:00] stripped IR: nets=0 relations=0 derived={} validation={}
+[2026-09-15T19:27:37.847875+00:00] with_symbols harvest_elf(/u/hthomare/mWM-decompiler/third_party/flexo/circuits/gates/and.elf) read-only
+[2026-09-15T19:27:37.904799+00:00] with_symbols harvest: fragments=3 events=19 dual_gate=True facts=1
+[2026-09-15T19:27:37.904862+00:00] with_symbols lift_from_elf(/u/hthomare/mWM-decompiler/third_party/flexo/circuits/gates/and.elf) DualGate
+[2026-09-15T19:27:37.922291+00:00] with_symbols IR: nets=1 relations=1 derived={'boolean_lut': 1} validation={'confirmed': 1} lut_nets=1
+[2026-09-15T19:27:47.355010+00:00] propose_names and: name key not in IR: 'boolean_lut'
+[2026-09-15T19:27:56.850985+00:00] cluster and: cluster name 'cfg.call_timer' is not an identifier
+[2026-09-15T19:28:04.502071+00:00] render_c and: c identifiers not in IR: ['u']
+[2026-09-15T19:28:04.504971+00:00] wrote c/recovered_with_symbols.c
+[2026-09-15T19:28:04.534920+00:00] done llm_ok=True harvest_frags=3 with_symbols_luts=1

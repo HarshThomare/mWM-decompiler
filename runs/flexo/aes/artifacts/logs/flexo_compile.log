@@ -1,0 +1,13 @@
+Retry AES compile (AES Makefile flags, allow inline) at 2026-09-14T23:41:04-07:00
+=== 1. C to LLVM IR (AES Makefile: -O1, inlining allowed) ===
+IR bytes: 304364
+=== 2. Flexo create-WMs ===
+Found weird function: __weird__aes_round
+[Circuit] Wires: 4990
+[Circuit] Gates: 2524
+WM IR bytes: 5950170
+=== 3. LLVM IR to ELF ===
+ELF bytes: 776544
+bash: line 15: file: command not found
+AES_COMPILE_EXIT=127 at 2026-09-14T23:41:13-07:00
+-rwxr-xr-x 1 hthomare lab 776544 Sep 14 23:32 /u/hthomare/mWM-decompiler/third_party/flexo/circuits/AES/aes_round.elf

@@ -1,0 +1,82 @@
+{
+  "confirmed_policy": "confirmed=false unless native/static validation later sets it",
+  "cap": 8,
+  "n_considered": 2,
+  "n_harvest_fragments": 2,
+  "hypotheses": [
+    {
+      "fragment": "c1",
+      "entry": 7184,
+      "n_events": 118836,
+      "confidence": 0.74,
+      "confirmed": false,
+      "evidence_truncated": true,
+      "n_events_sent": 96,
+      "form": "indexed_memory",
+      "cited_events": [
+        "c1.e10",
+        "c1.e11",
+        "c1.e24",
+        "c1.e25",
+        "c1.e27",
+        "c1.e28",
+        "c1.e29",
+        "c1.e30",
+        "c1.e31",
+        "c1.e36",
+        "c1.e118793",
+        "c1.e118794",
+        "c1.e118827"
+      ],
+      "facts": [
+        "c1.e10 is ARCH_MEMORY mov with operand rbp+rax*4+-0x9c18",
+        "c1.e27 and c1.e28 are ARCH_MEMORY mov with operand rbp+rdx*4+-0x9c18",
+        "c1.e29 and c1.e30 are ARCH_MEMORY mov with operand rbp+rcx*4+-0x9c18",
+        "c1.e11 is ARCH_COMPUTE add ecx, 1",
+        "c1.e31 is ARCH_COMPUTE add eax, 1",
+        "c1.e24 is ARCH_COMPUTE imul edx, edx, 0x19660d",
+        "c1.e25 is ARCH_COMPUTE add edx, 0x3c6ef35f",
+        "c1.e36 is STATE_WRITE mov to rax+0xa",
+        "c1.e118793 is ARCH_COMPUTE and dil, 1",
+        "c1.e118794 is ARCH_COMPUTE add edx, edi",
+        "c1.e118827 is STATE_WRITE mov to fixed address operand 0xbd070"
+      ],
+      "inferences": [
+        "Repeated rbp+reg*4+-0x9c18 access pattern is consistent with indexed table read/write using multiple index registers",
+        "imul/add on edx immediately before rdx-scaled memory ops is consistent with transforming an index before lookup",
+        "Masked dil and add edx, edi is consistent with branch-influenced index or offset selection layered on table access",
+        "Incrementing ecx and eax in the same window is consistent with stepping indices or loop counters over table entries"
+      ],
+      "note": "Hypothesis: word-indexed stack-relative table with hashed/scrambled indices and branch-modulated offsets",
+      "status": "hypothesis"
+    },
+    {
+      "fragment": "c0",
+      "entry": 4352,
+      "n_events": 4,
+      "confidence": 0.72,
+      "confirmed": false,
+      "evidence_truncated": false,
+      "n_events_sent": 4,
+      "form": "branch_dependent",
+      "cited_events": [
+        "c0.e0",
+        "c0.e1",
+        "c0.e2",
+        "c0.e3"
+      ],
+      "facts": [
+        "STATE_TRAIN on subject btb_entry at addresses 4383 and 4448 for jmp with operand rax (c0.e0, c0.e2).",
+        "ARCH_BRANCH on subject btb_entry at the same addresses 4383 and 4448 for jmp rax with attrs.func 4352 (c0.e1, c0.e3).",
+        "Each address pairs one STATE_TRAIN with one ARCH_BRANCH at identical insn jmp rax and subject btb_entry.",
+        "Modeled output c0.rax is persistent, width 16, encoding btb_target, spec btb_entry."
+      ],
+      "inferences": [
+        "Observed train-then-branch pairing at two PCs suggests branch-site-dependent update of a single persistent target representation in rax.",
+        "Two distinct branch PCs under the same func attribute may correspond to separate training observations feeding one btb_entry-shaped state."
+      ],
+      "note": "Hypothesis from BTB indirect train/branch pairs only; no consume or m_in evidence.",
+      "status": "hypothesis"
+    }
+  ]
+}

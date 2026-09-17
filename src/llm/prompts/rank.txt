@@ -1,6 +1,6 @@
 Reply with only JSON. Use only these keys. If unsure use "unknown".
 
-Rank these already-verified interpretations of the typed µWM subgraph. Do not invent WR kinds, merges, window I/O, or LUT functions.
+Rank these already-verified interpretations of the typed relation subgraph. Do not invent derived forms, merges, or event ids.
 
 Subgraph:
 {ir}

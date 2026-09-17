@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Recover typed µWM IR from any ELF: locate → lift → compose → BLIF/C."""
+"""Harvest event traces, derive M_out = F(M_in, A, T), emit relation JSON / BLIF/C."""
 
 import argparse
 import itertools
@@ -9,7 +9,10 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections import Counter
 from pathlib import Path
+
+from elftools.elf.elffile import ELFFile
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parent
@@ -19,7 +22,8 @@ from ir.abc_run import cec, find_abc, synthesize
 from ir.blif import net_ports, net_to_blif, rename_ports
 from ir.flexo_tables import DUAL_RAIL_AND, DUAL_RAIL_XOR, check_decode
 from ir.gold_blif import gold_for
-from ir.net import Kind, MixedCompositionError, Net, Place, TransKind, gate_transition
+from ir.net import MixedCompositionError, Net
+from ir.relation import DerivedForm, Relation, ValidationStatus, boolean_lut_interp
 from lift.flexo import has_dual_gate
 from lift.harvest import HarvestResult, harvest_elf
 from lift.recover import LiftContext, lift_from_elf
@@ -59,13 +63,13 @@ def all_jobs():
 
 def _gate_net(name: str, n_in: int, table_id: int) -> Net:
     net = Net(name=name)
+    rel = Relation(name=name)
     ins = [f"i{i}" for i in range(n_in)]
-    outs = ["o0"]
-    for n in ins + outs:
-        net.add_place(Place(n, Kind.VOLATILE, "bit"))
-    net.add_transition(gate_transition(f"{name}_g", n_in, table_id, ins, outs))
-    net.native["dual_gate_instances"] = 1
-    net.native["wired_instances"] = 1
+    rel.set_interpretation(
+        boolean_lut_interp(n_in, table_id=table_id, n_out=1, inputs=ins, outputs=["o0"])
+    )
+    rel.validation = ValidationStatus.CONFIRMED
+    net.add_relation(rel)
     return net
 
 
@@ -125,8 +129,18 @@ def _try_cec(gold: str, impl: str, gold_path: Path, impl_path: Path) -> dict:
         return {"equivalent": False, "not_equivalent": False, "log": str(e)}
 
 
+def _lut_relations(net: Net):
+    for r in net.relations.values():
+        if r.derived_form() != DerivedForm.BOOLEAN_LUT or r.interpretation is None:
+            continue
+        p = r.interpretation.payload
+        if p.get("gate_table") is None and p.get("table_id") is None:
+            continue
+        yield r
+
+
 def has_lut(net: Net) -> bool:
-    return any(t.kind == TransKind.GATE and t.gate_table for t in net.transitions.values())
+    return any(True for _ in _lut_relations(net))
 
 
 def decompile_net(net, outdir: Path) -> dict:
@@ -180,37 +194,43 @@ def decompile_net(net, outdir: Path) -> dict:
         "c": str(c_path) if c_src else None,
         "abc": abc_info,
         "cec": cec_info,
-        "places": len(net.places),
+        "derived": net.derived(),
+        "relations": len(net.relations),
         "gates": net.native.get("dual_gate_instances"),
         "wired": net.native.get("wired_instances"),
-        "class": net.classify(),
         "pis_pos": net_ports(net),
     }
 
 
+def _table_bit(table, key):
+    if table is None:
+        return 0
+    if key in table:
+        return int(table[key])
+    compact = "".join(map(str, key))
+    if compact in table:
+        return int(table[compact])
+    return 0
+
+
 def net_to_c(net: Net) -> str:
-    """Deterministic C for LUT regions. ISA/unlabeled nets stay commented stubs."""
-    gates = [t for t in net.transitions.values() if t.kind == TransKind.GATE]
-    if not gates or not any(t.gate_table for t in gates):
-        unc = net.native.get("uncertainty") or "no_lut"
-        return (
-            f"/* {net.name}: no Boolean LUT (uncertainty={unc}). "
-            f"BTB/TLB native adapters may be unemulated. */\n"
-        )
-    lines = [f"/* recovered {net.name} compose={_compose_label(net)} */", "#include <stdint.h>", ""]
-    for t in gates:
-        if not t.gate_table:
-            continue
-        args = ", ".join(f"uint32_t {n}" for n in t.inputs) or "void"
-        ident = re.sub(r"[^A-Za-z0-9_]", "_", t.name)
+    """Deterministic C for boolean_lut relations. Other derived forms stay stubs."""
+    luts = list(_lut_relations(net))
+    if not luts:
+        return f"/* {net.name}: derived={net.derived()} (no boolean_lut). */\n"
+    lines = [f"/* recovered {net.name} derived={_compose_label(net)} */", "#include <stdint.h>", ""]
+    for r in luts:
+        p = r.interpretation.payload
+        inputs = list(p.get("inputs") or [])
+        table = p.get("gate_table")
+        args = ", ".join(f"uint32_t {n}" for n in inputs) or "void"
+        ident = re.sub(r"[^A-Za-z0-9_]", "_", r.name)
         lines.append(f"uint32_t {ident}({args}) {{")
-        n_in = len(t.inputs)
+        n_in = len(inputs)
         for bits in range(1 << n_in):
             key = tuple((bits >> k) & 1 for k in range(n_in))
-            bit = int(t.gate_table.get(key, 0))
-            cond = " && ".join(
-                f"{t.inputs[k]} == { (bits >> k) & 1 }" for k in range(n_in)
-            ) or "1"
+            bit = _table_bit(table, key)
+            cond = " && ".join(f"{inputs[k]} == {(bits >> k) & 1}" for k in range(n_in)) or "1"
             lines.append(f"  if ({cond}) return {bit};")
         lines.append("  return 0;")
         lines.append("}")
@@ -218,26 +238,81 @@ def net_to_c(net: Net) -> str:
     return "\n".join(lines)
 
 
+_IDENTIFYING = re.compile(
+    rb"(?:__DualGate__[0-9_]+|__weird__[A-Za-z0-9_]+|mod_ret_addr"
+    rb"|[A-Za-z0-9._-]+\.(?:c|cpp|cc|h|hpp)"
+    rb"|weird machine|AES Round|aes_round|ref_aes"
+    rb"|(?:AND|OR|XOR|NAND|NOR|NOT|MUX|AES)(?=\x00))",
+    re.IGNORECASE,
+)
+
+
+def _zero_cstrs(data: bytearray, pattern: re.Pattern) -> int:
+    n = 0
+    pos = 0
+    while True:
+        m = pattern.search(data, pos)
+        if not m:
+            return n
+        lo = data.rfind(b"\x00", 0, m.start())
+        lo = 0 if lo < 0 else lo + 1
+        hi = data.find(b"\x00", m.end())
+        hi = len(data) if hi < 0 else hi
+        data[lo:hi] = b"\x00" * (hi - lo)
+        n += 1
+        pos = hi + 1 if hi + 1 > m.start() else m.end()
+
+
+def _scrub_identifying_strings(path: Path) -> int:
+    """Zero leftover circuit/function C strings after strip --strip-all (not .dynstr)."""
+    n = 0
+    with open(path, "rb") as f:
+        elf = ELFFile(f)
+        patches = []
+        for name in (".rodata", ".comment", ".strtab", ".data"):
+            sec = elf.get_section_by_name(name)
+            if sec is None:
+                continue
+            buf = bytearray(sec.data())
+            hits = _zero_cstrs(buf, _IDENTIFYING)
+            if hits:
+                patches.append((sec["sh_offset"], bytes(buf)))
+                n += hits
+    with open(path, "r+b") as f:
+        for off, blob in patches:
+            f.seek(off)
+            f.write(blob)
+    return n
+
+
 def strip_copy(src: Path, dst: Path) -> Path:
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
     subprocess.check_call(["strip", "--strip-all", str(dst)])
+    try:
+        subprocess.check_call(
+            ["objcopy", "--remove-section=.comment", "--remove-section=.note.gnu.build-id", str(dst)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
+    _scrub_identifying_strings(dst)
     return dst
 
 
 def harvest_stats(h: HarvestResult) -> dict:
-    resolved = [c for c in h.candidates if not c.unresolved]
-    by = {}
-    for c in resolved:
-        key = f"{c.resource}+{c.trigger}"
-        by[key] = by.get(key, 0) + 1
+    kinds = Counter(e.kind.value for e in h.events)
+    derived = Counter(f.derived_form().value for f in h.fragments)
+    validation = Counter(f.validation.value for f in h.fragments)
     return {
-        "n_primitives": len(h.primitives),
-        "n_candidates": len(h.candidates),
-        "n_resolved": len(resolved),
-        "n_unresolved": len(h.candidates) - len(resolved),
-        "resolved": by,
-        "entries": [(c.resource, c.trigger, c.entry) for c in resolved],
+        "n_events": len(h.events),
+        "n_fragments": len(h.fragments),
+        "n_funcs": len(h.funcs),
+        "event_kinds": dict(kinds),
+        "derived": dict(derived),
+        "validation": dict(validation),
+        "fragment_event_counts": {f.name: len(f.events) for f in h.fragments},
     }
 
 
@@ -249,19 +324,36 @@ def _compose_label(net: Net) -> str:
 
 
 def _llm_overlay(net: Net, no_llm: bool):
-    from llm.aid import cluster, propose_names, render_c
+    from llm.aid import cluster, propose_names, propose_relation, render_c
     from llm.client import should_run
 
     if no_llm or not should_run(False):
         return None
+    out = {}
     try:
-        return {
-            "names": propose_names(net, no_llm=False),
-            "cluster": cluster(net, no_llm=False),
-            "c": render_c(net, no_llm=False),
-        }
+        hyps = []
+        for rel in net.relations.values():
+            hyp = propose_relation(rel, no_llm=False)
+            if hyp is not None:
+                hyps.append({"name": rel.name, **hyp.to_dict()})
+        if hyps:
+            out["relation"] = hyps
     except Exception as e:
-        return {"error": str(e)}
+        out["relation_error"] = str(e)
+    try:
+        names = propose_names(net, no_llm=False)
+        cl = cluster(net, no_llm=False)
+        c_src = render_c(net, no_llm=False)
+        if names:
+            out["names"] = names
+        if cl:
+            out["cluster"] = cl
+        if c_src:
+            out["c"] = c_src
+    except Exception as e:
+        if "unverified IR" not in str(e):
+            out.setdefault("error", str(e))
+    return out or None
 
 
 def extract_elf(
@@ -276,17 +368,20 @@ def extract_elf(
     core: int = 0,
     retry: bool = False,
     timeout_s: int = 180,
-    max_windows: int = 8,
+    max_windows: int = 64
     keep_stripped=None,
 ) -> dict:
-    """Locate → hypothesize → native adapters → family lift → typed compose → BLIF/C."""
+    """Harvest fragments → derive relations → typed compose → optional BLIF/C."""
     src = Path(path)
     work = src
-    tmp = None
     if stripped:
-        tmp = Path(keep_stripped) if keep_stripped else Path(tempfile.mkdtemp(prefix="mwm-decompiler-strip-")) / (src.stem + ".stripped")
+        tmp = Path(keep_stripped) if keep_stripped else Path(tempfile.mkdtemp(prefix="mwm-decompiler-strip-")) / (
+            src.stem + ".stripped"
+        )
         work = strip_copy(src, tmp)
     harvest = harvest_elf(str(work))
+    stats = harvest_stats(harvest)
+    harvest_fragments = [f.to_dict() for f in harvest.fragments]
     ctx = LiftContext(
         path=str(work),
         harvest=harvest,
@@ -296,6 +391,7 @@ def extract_elf(
         native=True,
         run_native=run_native,
         max_windows=max_windows,
+        llm=False,
     )
     cpu = None
     dual = has_dual_gate(str(work))
@@ -323,10 +419,9 @@ def extract_elf(
             result.rejected.append(
                 {
                     "name": net.name,
-                    "resource": None,
-                    "trigger": None,
                     "entry": None,
                     "reason": f"mixed:{e}",
+                    "derived": net.derived(),
                 }
             )
     if cpu:
@@ -355,26 +450,30 @@ def extract_elf(
             llm[net.name] = overlay
         if decomp:
             decompiles[net.name] = decomp
-    stats = harvest_stats(harvest)
     abstain = []
+    derived_rels = [r for net in nets for r in net.relations.values() if not r.unresolved()]
     if not nets:
         abstain.append("no_recovered_net")
-    if stats["n_resolved"] == 0:
-        abstain.append("no_resolved_region")
+    if not derived_rels:
+        abstain.append("no_derived_relation")
     for net in nets:
         if net.native.get("uncertainty"):
             abstain.append(f"{net.name}:{net.native['uncertainty']}")
-        for t in net.transitions.values():
-            expr = t.expr if isinstance(t.expr, dict) else {}
-            unc = expr.get("uncertainty") if expr else None
-            if unc:
-                abstain.append(f"{net.name}:{unc}")
+        for r in net.relations.values():
+            if r.validation == ValidationStatus.ABSTAINED:
+                abstain.append(f"{r.name}:abstained")
+            if r.evidence:
+                for o in r.evidence.observations:
+                    if isinstance(o, dict) and o.get("uncertainty"):
+                        abstain.append(f"{r.name}:{o['uncertainty']}")
+    abstain = list(dict.fromkeys(abstain))
     return {
         "elf": str(src),
         "work_elf": str(work),
         "stripped": bool(stripped),
         "dual_gate": dual,
         "harvest": stats,
+        "fragments": harvest_fragments,
         "nets": nets,
         "rejected": list(result.rejected),
         "compose_errors": compose_errors,
@@ -385,28 +484,48 @@ def extract_elf(
     }
 
 
+def _fmt_names(xs) -> str:
+    return ",".join(xs) if xs else "-"
+
+
 def print_net(net, decomp=None):
+    vals = sorted({r.validation.value for r in net.relations.values()})
+    extra = ""
+    wired = net.native.get("wired_instances")
+    gates = net.native.get("dual_gate_instances")
+    if wired is not None or gates is not None:
+        extra = f"  wired={wired}/{gates}"
     unc = net.native.get("uncertainty")
-    extra_u = f"  uncertainty={unc}" if unc else ""
+    if unc:
+        extra += f"  uncertainty={unc}"
     print(
-        f"net {net.name}  class={net.classify()}  compose={_compose_label(net)}  "
-        f"places={len(net.places)}  trans={len(net.transitions)}  "
-        f"wired={net.native.get('wired_instances')}/{net.native.get('dual_gate_instances')}"
-        f"{extra_u}"
+        f"net {net.name}  derived={net.derived()}  compose={_compose_label(net)}  "
+        f"relations={len(net.relations)}  validation={','.join(vals) or '-'}"
+        f"{extra}"
     )
-    shown = 0
-    for t in net.transitions.values():
-        extra = ""
-        if t.table_id is not None:
-            extra = f" n_in={t.n_in} n_out={t.n_out} table={t.table_id}"
-            extra += f" {t.inputs}->{t.outputs}"
-        elif t.expr is not None:
-            extra = f" trigger={t.trigger} resource={t.resource}"
-        print(f"  T {t.kind.value:8} {t.name}{extra}")
-        shown += 1
-        if shown >= 12 and len(net.transitions) > 14:
-            rest = len(net.transitions) - shown
-            print(f"  ... {rest} more transitions")
+    shown_rel = 0
+    for r in net.relations.values():
+        print(
+            f"  R {r.name}  derived={r.derived_form().value}  validation={r.validation.value}  "
+            f"M_in={_fmt_names(r.m_in)}  M_out={_fmt_names(r.m_out)}  "
+            f"A={_fmt_names(r.a_inputs)}  T={_fmt_names(r.t_constraints)}"
+        )
+        shown_ev = 0
+        for e in r.events:
+            bits = [e.id] if e.id else []
+            if e.insn:
+                bits.append(e.insn)
+            if e.subject:
+                bits.append(f"M={e.subject}")
+            extra_e = (" " + " ".join(bits)) if bits else ""
+            print(f"    E {e.kind.value:14}{extra_e}")
+            shown_ev += 1
+            if shown_ev >= 12 and len(r.events) > 14:
+                print(f"    ... {len(r.events) - shown_ev} more events")
+                break
+        shown_rel += 1
+        if shown_rel >= 8 and len(net.relations) > 10:
+            print(f"  ... {len(net.relations) - shown_rel} more relations")
             break
     if decomp:
         abc = decomp.get("abc") or {}
@@ -431,9 +550,15 @@ def _net_payload(net: Net, decomp, overlay) -> dict:
     return payload
 
 
+def _harvest_payload(stats: dict, fragments) -> dict:
+    out = dict(stats)
+    out["fragments"] = [f.to_dict() if hasattr(f, "to_dict") else f for f in fragments]
+    return out
+
+
 def main():
-    p = argparse.ArgumentParser(description="Recover typed µWM IR from an ELF")
-    p.add_argument("elf", nargs="?", help="ELF to decompile (any family; symbols optional)")
+    p = argparse.ArgumentParser(description="Harvest µWM relations from an ELF")
+    p.add_argument("elf", nargs="?", help="ELF to decompile (any derived form; symbols optional)")
     p.add_argument(
         "--run-native",
         action="store_true",
@@ -444,11 +569,11 @@ def main():
     p.add_argument("--retry", action="store_true")
     p.add_argument("--json", action="store_true")
     p.add_argument("--self-test", action="store_true")
-    p.add_argument("--blif", action="store_true", help="export BLIF/C and run ABC on LUT regions")
+    p.add_argument("--blif", action="store_true", help="export BLIF/C and run ABC on boolean_lut regions")
     p.add_argument("--all", action="store_true", help="Flexo + GITM + TAE ELFs under third_party/")
     p.add_argument("--stripped", action="store_true", help="strip a copy before locate/lift")
     p.add_argument("--no-llm", action="store_true", help="skip optional LLM overlay; IR/CEC unchanged")
-    p.add_argument("--max-windows", type=int, default=8)
+    p.add_argument("--max-windows", type=int, default=64)
     p.add_argument("--outdir", default=str(ROOT / "output" / "ir"))
     args = p.parse_args()
 
@@ -493,7 +618,7 @@ def main():
                 "elf": report["elf"],
                 "stripped": report["stripped"],
                 "dual_gate": report["dual_gate"],
-                "harvest": hs,
+                "harvest": _harvest_payload(hs, report["fragments"]),
                 "rejected": report["rejected"],
                 "compose_errors": report["compose_errors"],
                 "abstain": report["abstain"],
@@ -509,12 +634,8 @@ def main():
             }
             print(json.dumps(payload, indent=2))
         else:
-            resolved = hs["resolved"] or {}
-            keys = " ".join(f"{k}={v}" for k, v in resolved.items()) or "none"
-            print(
-                f"harvest primitives={hs['n_primitives']} candidates={hs['n_candidates']} "
-                f"resolved={hs['n_resolved']} {keys}"
-            )
+            kinds = " ".join(f"{k}={v}" for k, v in sorted(hs["event_kinds"].items())) or "none"
+            print(f"harvest events={hs['n_events']} fragments={hs['n_fragments']} {kinds}")
             if report["abstain"]:
                 print("abstain " + ",".join(report["abstain"]))
             if report["rejected"]:
@@ -530,15 +651,16 @@ def main():
                     "elf": str(elf),
                     "tag": tag,
                     "circuit": net.name,
-                    "class": net.classify(),
+                    "derived": net.derived(),
                     "compose": _compose_label(net),
-                    "places": len(net.places),
+                    "relations": len(net.relations),
+                    "validation": sorted({r.validation.value for r in net.relations.values()}),
                     "gates": net.native.get("dual_gate_instances"),
                     "wired": net.native.get("wired_instances"),
                     "native": (net.native.get("cpu_circuit") or {}).get("accuracy_pct"),
                     "cec": decomp.get("cec") if decomp else None,
                     "abc": (decomp.get("abc") or {}).get("stats") if decomp else None,
-                    "resolved": hs["n_resolved"],
+                    "n_fragments": hs["n_fragments"],
                     "abstain": report["abstain"],
                 }
             )
@@ -548,9 +670,9 @@ def main():
                     "elf": str(elf),
                     "tag": tag,
                     "circuit": None,
-                    "class": None,
+                    "derived": None,
                     "compose": None,
-                    "resolved": hs["n_resolved"],
+                    "n_fragments": hs["n_fragments"],
                     "abstain": report["abstain"],
                     "rejected": len(report["rejected"]),
                 }

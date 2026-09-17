@@ -9,7 +9,10 @@ from capstone import CS_ARCH_X86, CS_MODE_64, Cs
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_OP_REG
 from elftools.elf.elffile import ELFFile
 
-from ir.net import Kind, Net, Place, TransKind, Transition, gate_transition
+from ir.events import EventKind, make_event
+from ir.net import Net
+from ir.relation import Relation, ValidationStatus, boolean_lut_interp
+from ir.state import CACHE_OCCUPANCY, ArchInput, state_var
 
 DUAL_RE = re.compile(r"^__DualGate__(\d+)_(\d+)_(\d+)$")
 WEIRD_RE = re.compile(r"__weird__([A-Za-z0-9_]+)")
@@ -161,6 +164,41 @@ def _tag_wire(tag: Any) -> Optional[int]:
     return None
 
 
+def _gate_relation(
+    op: str,
+    inst: int,
+    gname: str,
+    n_in: int,
+    n_out: int,
+    table_id: int,
+    in_names: List[str],
+    out_names: List[str],
+    addr: int,
+    source: str,
+) -> Relation:
+    name = op if inst == 0 else f"{op}.g{inst}"
+    rel = Relation(name=name, source=source, entry=addr)
+    for nm in in_names:
+        rel.add_m_in(state_var(nm, CACHE_OCCUPANCY, phys_key=nm))
+        rel.add_a(ArchInput(name=nm, domain="bit", width=1, binding=nm))
+    for nm in out_names:
+        rel.add_m_out(state_var(nm, CACHE_OCCUPANCY, phys_key=nm))
+    rel.set_interpretation(
+        boolean_lut_interp(n_in, table_id=table_id, n_out=n_out, inputs=in_names, outputs=out_names)
+    )
+    rel.validation = ValidationStatus.CONFIRMED
+    rel.add_event(
+        make_event(
+            EventKind.ARCH_COMPUTE,
+            addr=addr,
+            insn="call",
+            operand=gname,
+            provenance=("static.dual_gate",),
+        )
+    )
+    return rel
+
+
 def _lift_function(
     op: str,
     insns,
@@ -221,18 +259,18 @@ def _lift_function(
                 else:
                     in_names = [f"{op}.g{inst}.in{i}" for i in range(n_in)]
                     out_names = [f"{op}.g{inst}.out{i}" for i in range(n_out)]
-                for nm in in_names + out_names:
-                    if nm not in net.places:
-                        net.add_place(Place(nm, Kind.VOLATILE, "bit"))
-                net.add_transition(
-                    gate_transition(
-                        name=f"{gname}@{insn.address:x}",
-                        n_in=n_in,
-                        n_out=n_out,
-                        table_id=table_id,
-                        inputs=in_names,
-                        outputs=out_names,
-                        addr=insn.address,
+                net.add_relation(
+                    _gate_relation(
+                        op,
+                        inst,
+                        gname,
+                        n_in,
+                        n_out,
+                        table_id,
+                        in_names,
+                        out_names,
+                        insn.address,
+                        source,
                     )
                 )
                 inst += 1
@@ -393,7 +431,6 @@ def _lift_function(
         if mnem in ("and", "or", "shr", "shl", "sar") and ops and ops[0].type == X86_OP_REG:
             kill(_reg(insn, ops[0]))
 
-    net.add_transition(Transition(name="rho", kind=TransKind.ROLLBACK, expr=None))
     net.native["wr_offset"] = wr_off
     net.native["perm_disp"] = array_disp
     net.native["perm_slots"] = nslots
@@ -435,37 +472,23 @@ def lift_flexo_circuits(path: str) -> List[Net]:
 
 
 def lift_flexo_elf(path: str) -> Net:
-    """Union of per-function nets (CLI helper). Prefer lift_flexo_circuits."""
+    """Union of per-function DualGate relations (CLI helper). Prefer lift_flexo_circuits."""
     circuits = lift_flexo_circuits(path)
     if len(circuits) == 1:
         return circuits[0]
     path = str(path)
     net = Net(name=Path(path).stem, source=path)
     for c in circuits:
-        for p in c.places.values():
-            if p.name not in net.places:
-                net.add_place(Place(p.name, p.kind, p.col))
-        for t in c.transitions.values():
-            if t.kind == TransKind.ROLLBACK:
-                continue
-            name = t.name if t.name not in net.transitions else f"{c.name}.{t.name}"
-            net.add_transition(
-                Transition(
-                    name=name,
-                    kind=t.kind,
-                    n_in=t.n_in,
-                    n_out=t.n_out,
-                    table_id=t.table_id,
-                    gate_table=t.gate_table,
-                    gate_tables=t.gate_tables,
-                    expr=t.expr,
-                    inputs=t.inputs,
-                    outputs=t.outputs,
-                    addr=t.addr,
-                )
-            )
+        for r in c.relations.values():
+            nm = r.name if r.name not in net.relations else f"{c.name}.{r.name}"
+            if nm != r.name:
+                r.name = nm
+            net.add_relation(r)
         net.native.setdefault("circuits", []).append(
-            {"op": c.name, "places": len(c.places), "gates": c.native.get("dual_gate_instances")}
+            {
+                "op": c.name,
+                "relations": len(c.relations),
+                "gates": c.native.get("dual_gate_instances"),
+            }
         )
-    net.add_transition(Transition(name="rho", kind=TransKind.ROLLBACK, expr=None))
     return net

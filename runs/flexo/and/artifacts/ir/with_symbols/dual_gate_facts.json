@@ -1,0 +1,17 @@
+[
+  {
+    "op": "and",
+    "func_addr": 4560,
+    "symbol": "_Z12__weird__andbbRb",
+    "gates": [
+      {
+        "symbol": "__DualGate__2_1_8",
+        "n_in": 2,
+        "n_out": 1,
+        "table_id": 8,
+        "addr": 5002
+      }
+    ],
+    "source": "/u/hthomare/mWM-decompiler/third_party/flexo/circuits/gates/and.elf"
+  }
+]

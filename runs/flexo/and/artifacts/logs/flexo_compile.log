@@ -1,0 +1,16 @@
+AND compile start 2026-09-15T12:26:34-07:00
+=== 1. C++ to LLVM IR (gates Makefile: -O1 -fno-inline-functions) ===
+IR bytes: 14671
+=== 2. Flexo create-WMs (WR_OFFSET=576 RET_WM_DIV_ROUNDS=5) ===
+Found weird function: _Z12__weird__andbbRb
+[Circuit] Wires: 5
+[Circuit] Gates: 1
+WM IR bytes: 25150
+=== 3. LLVM IR to ELF ===
+ELF bytes: 17112
+-rwxr-xr-x 1 root root 17112 Sep 15 19:18 /flexo/circuits/gates/and.elf
+AND_COMPILE_EXIT=0 at 2026-09-15T12:26:35-07:00
+-rwxr-xr-x 1 hthomare lab 17112 Sep 15 12:18 /u/hthomare/mWM-decompiler/third_party/flexo/circuits/gates/and.elf
+=== DualGate / weird symbols ===
+00000000000017e0 T __DualGate__2_1_8
+00000000000011d0 T __weird__and(bool, bool, bool&)

@@ -1,0 +1,56 @@
+{
+  "started": "2026-09-15T07:20:00.008380+00:00",
+  "source_elf": "/u/hthomare/mWM-decompiler/third_party/flexo/circuits/AES/aes_round.elf",
+  "llm_enabled": true,
+  "no_llm_flag": false,
+  "strip_ok": true,
+  "sha256_original": "ed6a412c369a441a3537fc0437b8b27dad47ac0fafffa09715c74f45219687c4",
+  "sha256_anonymized": "73546738f3ac1fa1143010ce3e021f61c93a2b5c8110f3bca1fe860a67f49f24",
+  "c_diff_identical": false,
+  "harvest": {
+    "source": "/u/hthomare/mWM-decompiler/runs/flexo/aes/artifacts/input/anonymized.elf",
+    "n_events": 25214,
+    "n_fragments": 2,
+    "n_funcs": 40,
+    "event_kinds": {
+      "ARCH_BRANCH": 2,
+      "WINDOW_OPEN": 1,
+      "ARCH_COMPUTE": 9976,
+      "STATE_CLEAR": 10184,
+      "WINDOW_EXTEND": 5048,
+      "STATE_OBSERVE": 2,
+      "STATE_READ": 1
+    },
+    "fragment_derived": {
+      "unknown": 2
+    },
+    "fragment_validation": {
+      "unresolved": 2
+    }
+  },
+  "fragment_event_counts": {"c1": 118836, "c0": 4},
+  "flexo_compile": {"wires": 4990, "gates": 2524, "dualgate_symbols_unstripped": 30},
+  "ir": {
+    "n_nets": 0,
+    "n_relations": 0,
+    "derived": {"unknown": 2},
+    "validation": {"unresolved": 2},
+    "n_rejected": 0,
+    "lift_error": null,
+    "uncertainty": "stripped DualGate symbols; native adapters abstained; no LUT invented"
+  },
+  "llm": {
+    "success": true,
+    "key_present": true,
+    "n_hypotheses": 2,
+    "n_with_form": 2,
+    "n_errors": 0,
+    "error": null
+  },
+  "c": {
+    "recovered_bytes": 40,
+    "expected_bytes": 2620,
+    "identical": false
+  },
+  "finished": "2026-09-15T07:20:49.337187+00:00"
+}

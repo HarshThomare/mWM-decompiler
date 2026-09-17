@@ -1,116 +1,73 @@
-"""TLB hit/miss state-transition recovery via TlbAdapter."""
+"""Transition-system enrichment for tlb_entry M. TlbAdapter validates the walk.
+
+STATE_READ → ARCH_COMPUTE → STATE_WRITE on tlb_entry is a transition system,
+not a LUT. Unemulated walks keep the form and record uncertainty.
+"""
 
 from __future__ import annotations
 
-from typing import Optional
-
-from ir.net import (
-    Net,
-    ResourceKind,
-    TransKind,
-    Transition,
-    isa_region,
-    lut_region,
-    wr_place,
-)
-from lift.harvest import Candidate
+from ir.relation import Relation, ValidationStatus, transition_system_interp
+from ir.state import TLB_ENTRY, state_var
 from oracle.tlb import TlbAdapter
-from oracle.runner import NativeResult
+
+from .flexo import evidence_from_native
 
 
-class TlbRecovery:
-    name = "tlb"
-    resource = ResourceKind.TLB.value
+def _vpn(rel: Relation) -> str:
+    for v in list(rel.m_in.values()) + list(rel.m_out.values()):
+        if v.phys_key:
+            return str(v.phys_key)
+    if rel.entry is not None:
+        return f"{rel.entry:#x}"
+    return rel.name
 
-    def match(self, cand: Candidate, ctx) -> bool:
-        return cand.resource == self.resource
 
-    def recover(self, cand: Candidate, ctx) -> Optional[Net]:
-        adapter: TlbAdapter = ctx.tlb or TlbAdapter()
-        samples = (ctx.tlb_samples or {}).get(cand.name)
-        key = cand.phys_keys[0] if cand.phys_keys else cand.name
-        result: NativeResult
-        if samples:
-            evicted = samples.get("evicted") or []
-            after = samples.get("after") or []
-            if evicted or after:
-                result = adapter.test_vpn_causality(str(key), evicted, after)
-            elif samples.get("latencies"):
-                result = adapter.recover_hit_miss(samples["latencies"], phys_key=str(key))
-            else:
-                result = adapter.unavailable("unemulated", phys_key=str(key))
-            if result.causal is False and result.uncertainty == "no_effect":
-                ctx.reject(cand, "tlb_no_effect")
-                return None
+def enrich_transition(rel: Relation, ctx) -> None:
+    adapter: TlbAdapter = ctx.tlb or TlbAdapter()
+    samples = (ctx.tlb_samples or {}).get(rel.name)
+    key = _vpn(rel)
+    if samples:
+        evicted = samples.get("evicted") or []
+        after = samples.get("after") or []
+        if evicted or after:
+            result = adapter.test_vpn_causality(str(key), evicted, after)
+        elif samples.get("latencies"):
+            result = adapter.recover_hit_miss(samples["latencies"], phys_key=str(key))
         else:
             result = adapter.unavailable("unemulated", phys_key=str(key))
-        ev = result.to_evidence()
-        ev.observations = list(ev.observations) + [{"harvest": cand.name}]
-        net = Net(name=cand.name, source=ctx.path)
-        evicted_p = wr_place(f"{cand.name}.evicted", self.resource, phys_key=str(key), evidence=ev)
-        filled_p = wr_place(f"{cand.name}.filled", self.resource, phys_key=str(key), evidence=ev)
-        net.add_place(evicted_p)
-        net.add_place(filled_p)
-        tname = f"{cand.name}.walk"
-        table = None
-        kind = TransKind.EXPR
-        expr: object = {
-            "kind": "tlb_transition",
-            "from": "evicted",
-            "to": "filled" if result.causal else "unknown",
-            "uncertainty": result.uncertainty,
-        }
-        if result.value in (0, 1) and result.causal:
-            # occupancy bit as a 0-input constant after the walk
-            kind = TransKind.GATE
-            table = {(): int(result.value)}
-            expr = None
-        net.add_transition(
-            Transition(
-                name=tname,
-                kind=kind,
-                n_in=0 if table is not None else 1,
-                n_out=1,
-                gate_table=table,
-                gate_tables=[table] if table else None,
-                expr=expr,
-                inputs=[evicted_p.name] if kind == TransKind.EXPR else [],
-                outputs=[filled_p.name],
-                addr=cand.entry,
-                trigger=cand.trigger or adapter.trigger,
-                resource=self.resource,
-                evidence=ev,
-            )
+        if result.causal is False and result.uncertainty == "no_effect":
+            rel.set_interpretation(None)
+            rel.validation = ValidationStatus.REJECTED
+            ctx.reject(rel, "tlb_no_effect")
+            return
+    else:
+        result = adapter.unavailable("unemulated", phys_key=str(key))
+
+    step = "filled" if result.causal else ("unknown" if result.uncertainty else "walk")
+    if result.uncertainty == "unemulated":
+        step = "walk"
+    rel.set_interpretation(
+        transition_system_interp(
+            states=["evicted", "filled"],
+            step=step,
+            vpn=key,
+            uncertainty=result.uncertainty,
         )
-        # LUT region only when we recovered a Boolean occupancy bit
-        if kind == TransKind.GATE:
-            net.add_region(
-                lut_region(
-                    f"{cand.name}_lut",
-                    self.resource,
-                    places=list(net.places),
-                    transitions=[tname],
-                    trigger=cand.trigger or adapter.trigger,
-                    evidence=ev,
-                    entry=cand.entry,
-                    exit=cand.exit,
-                )
-            )
-        else:
-            net.add_region(
-                isa_region(
-                    f"{cand.name}_tlb",
-                    self.resource,
-                    places=list(net.places),
-                    transitions=[tname],
-                    trigger=cand.trigger or adapter.trigger,
-                    evidence=ev,
-                    entry=cand.entry,
-                    exit=cand.exit,
-                )
-            )
-        adapter.record(net, filled_p.name, phys_key=str(key), result=result)
-        net.native["family"] = self.name
-        net.native["tlb"] = result.to_dict()
-        net.compose()
-        return net
+    )
+    if TLB_ENTRY not in rel.specs():
+        rel.add_m_in(state_var(f"{rel.name}.evicted", TLB_ENTRY, phys_key=str(key)))
+        rel.add_m_out(state_var(f"{rel.name}.filled", TLB_ENTRY, phys_key=str(key)))
+
+    ev = evidence_from_native(result)
+    ev.observations = list(ev.observations) + [{"harvest": rel.name}]
+    if rel.evidence is not None:
+        ev.observations = list(rel.evidence.observations) + list(ev.observations)
+    rel.evidence = ev
+    if result.confidence is not None:
+        rel.confidence = result.confidence
+    if result.uncertainty == "unemulated" or result.invalid:
+        rel.validation = ValidationStatus.UNRESOLVED
+    else:
+        rel.validation = ValidationStatus.CONFIRMED
+    ctx._native_log = getattr(ctx, "_native_log", {})
+    ctx._native_log[rel.name] = {"tlb": result.to_dict()}

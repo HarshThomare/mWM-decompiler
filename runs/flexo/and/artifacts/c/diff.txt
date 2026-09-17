@@ -1,0 +1,34 @@
+# recovered vs expected (stripped path)
+# expected: /u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/c/expected.c (tiny return a & b gold from Flexo __weird__and)
+# recovered: /u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/c/recovered.c (stripped anonymized ELF)
+# recovered_with_symbols: /u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/c/recovered_with_symbols.c (unstripped DualGate lift)
+
+--- /u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/c/expected.c	2026-09-15 12:19:46.542339529 -0700
++++ /u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/c/recovered.c	2026-09-15 12:19:19.883338977 -0700
+@@ -1,6 +1 @@
+-/* Gold: Flexo AND (third_party/flexo/circuits/gates/and.cpp / test.cpp __weird__and) */
+-#include <stdint.h>
+-
+-uint32_t and_gate(uint32_t a, uint32_t b) {
+-    return a & b;
+-}
++/* no recovered net; harvest/IR only */
+
+# --- with_symbols vs expected ---
+
+--- /u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/c/expected.c	2026-09-15 12:19:46.542339529 -0700
++++ /u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/c/recovered_with_symbols.c	2026-09-15 12:19:46.541339529 -0700
+@@ -1,6 +1,10 @@
+-/* Gold: Flexo AND (third_party/flexo/circuits/gates/and.cpp / test.cpp __weird__and) */
++/* recovered and derived=boolean_lut */
+ #include <stdint.h>
+ 
+-uint32_t and_gate(uint32_t a, uint32_t b) {
+-    return a & b;
++uint32_t and(uint32_t i0, uint32_t i1) {
++  if (i0 == 0 && i1 == 0) return 0;
++  if (i0 == 1 && i1 == 0) return 0;
++  if (i0 == 0 && i1 == 1) return 0;
++  if (i0 == 1 && i1 == 1) return 1;
++  return 0;
+ }

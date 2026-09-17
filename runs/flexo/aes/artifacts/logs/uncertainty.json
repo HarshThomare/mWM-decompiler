@@ -1,0 +1,14 @@
+{
+  "derived_form": "unknown",
+  "n_recovered_nets": 0,
+  "reason": [
+    "strip --strip-all removed DualGate / __weird__ symbols, so static table_id recovery did not run",
+    "native cache/BTB/TLB adapters were not given occupancy or BTB/TLB samples (run_native=false)",
+    "adapters abstain rather than invent a LUT",
+    "LLM propose_relation returned hypotheses with confirmed=false; they were not attached as derived form"
+  ],
+  "llm_hypotheses": [
+    {"fragment": "c1", "form": "indexed_memory", "confirmed": false, "confidence": 0.74},
+    {"fragment": "c0", "form": "branch_dependent", "confirmed": false, "confidence": 0.72}
+  ]
+}

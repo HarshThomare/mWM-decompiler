@@ -1,0 +1,47 @@
+{
+  "stripped": {
+    "derived_form": "unknown",
+    "n_recovered_nets": 0,
+    "reason": [
+      "strip --strip-all removed DualGate / __weird__ symbols, so static table_id recovery did not run",
+      "native cache/BTB/TLB adapters were not given occupancy or BTB/TLB samples (run_native=false)",
+      "adapters abstain rather than invent a LUT",
+      "LLM propose_relation returned hypotheses with confirmed=false; they were not attached as derived form",
+      "stripped path recovered 0 nets"
+    ],
+    "llm_hypotheses": [
+      {
+        "fragment": "c1",
+        "form": "indexed_memory",
+        "confirmed": false,
+        "confidence": 0.68
+      },
+      {
+        "fragment": "c0",
+        "form": "branch_dependent",
+        "confirmed": false,
+        "confidence": 0.72
+      },
+      {
+        "fragment": "c2",
+        "form": "branch_dependent",
+        "confirmed": false,
+        "confidence": 0.72
+      }
+    ]
+  },
+  "with_symbols": {
+    "dual_gate_facts": 1,
+    "n_recovered_nets": 1,
+    "n_lut_nets": 1,
+    "derived": {
+      "boolean_lut": 1
+    },
+    "validation": {
+      "confirmed": 1
+    },
+    "reason": [
+      "DualGate symbols present; boolean_lut from table_id"
+    ]
+  }
+}

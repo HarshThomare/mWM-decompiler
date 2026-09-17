@@ -1,0 +1,106 @@
+{
+  "confirmed_policy": "confirmed=false unless native/static validation later sets it",
+  "cap": 8,
+  "n_considered": 3,
+  "n_harvest_fragments": 3,
+  "hypotheses": [
+    {
+      "fragment": "c1",
+      "entry": 4560,
+      "n_events": 106,
+      "confidence": 0.68,
+      "confirmed": false,
+      "evidence_truncated": true,
+      "n_events_sent": 96,
+      "form": "indexed_memory",
+      "cited_events": [
+        "c1.e9",
+        "c1.e23",
+        "c1.e24",
+        "c1.e26",
+        "c1.e27",
+        "c1.e28",
+        "c1.e29",
+        "c1.e44",
+        "c1.e61",
+        "c1.e68",
+        "c1.e76",
+        "c1.e84",
+        "c1.e85",
+        "c1.e87",
+        "c1.e103"
+      ],
+      "facts": [
+        "c1.e1 opens a window at the same address as the c1.e0 call.",
+        "c1.e9 is a mov from rbp+rax*4+-0x30.",
+        "c1.e10 increments ecx; c1.e6 and c1.e11 zero eax with xor eax,eax.",
+        "c1.e23 imuls edx by 0x19660d; c1.e24 adds 0x3c6ef35f to edx.",
+        "c1.e26 and c1.e27 are movs from rbp+rdx*4+-0x30; c1.e28 and c1.e29 are movs from rbp+rcx*4+-0x30.",
+        "c1.e37, c1.e41, c1.e58, c1.e71, and c1.e79 each imul by 0x240.",
+        "c1.e44 applies and cl,1; c1.e61 applies and al,1 before later imul/add chains.",
+        "c1.e68, c1.e76, and c1.e84 are clflush STATE_CLEAR on rax; c1.e85 and c1.e87 are mfence WINDOW_EXTEND.",
+        "c1.e92\u2013c1.e95 xor and mask al and dl; c1.e103 is a mov STATE_WRITE to rcx at the same address as c1.e104."
+      ],
+      "inferences": [
+        "Register-scaled loads at rbp+*4+-0x30 treat a contiguous 4-byte slot region as a lookup table keyed by rax, rdx, and rcx.",
+        "The edx update at c1.e23\u2013c1.e24 likely feeds index derivation before the rdx-scaled loads at c1.e26\u2013c1.e27.",
+        "Low-bit masks at c1.e44 and c1.e61 likely steer which index path feeds subsequent multiply-add address arithmetic.",
+        "The sequence from table reads through clflush/mfence to c1.e103 suggests indexed values participate in a timed read\u2013flush\u2013publish dataflow rather than a single direct store."
+      ],
+      "note": "Hypothesis: stack-relative dword table indexed by computed registers, not a derived semantic label.",
+      "status": "hypothesis"
+    },
+    {
+      "fragment": "c0",
+      "entry": 4288,
+      "n_events": 4,
+      "confidence": 0.72,
+      "confirmed": false,
+      "evidence_truncated": false,
+      "n_events_sent": 4,
+      "form": "branch_dependent",
+      "cited_events": [
+        "c0.e0",
+        "c0.e1",
+        "c0.e2",
+        "c0.e3"
+      ],
+      "facts": [
+        "c0.e0 and c0.e2 are STATE_TRAIN at addresses 4319 and 4384 on jmp rax with subject btb_entry and provenance cacm.btb.indirect.",
+        "c0.e1 and c0.e3 are ARCH_BRANCH at the same addresses as the paired STATE_TRAIN events, same insn and operand, with attrs.func 4288.",
+        "Persistent output c0.rax is spec btb_entry with encoding btb_target and width 16 tied to phys_key rax."
+      ],
+      "inferences": [
+        "The fragment likely models indirect-branch BTB train/consume coupling at two PC sites rather than a generic memory or LUT structure.",
+        "Rax as btb_target encoding suggests branch outcome or target selection depends on register-held target state shared across both sites."
+      ],
+      "note": "Hypothesis from BTB indirect train and arch_branch pairing only.",
+      "status": "hypothesis"
+    },
+    {
+      "fragment": "c2",
+      "entry": 5104,
+      "n_events": 2,
+      "confidence": 0.72,
+      "confirmed": false,
+      "evidence_truncated": false,
+      "n_events_sent": 2,
+      "form": "branch_dependent",
+      "cited_events": [
+        "c2.e0",
+        "c2.e1"
+      ],
+      "facts": [
+        "c2.e0 at address 5556 is STATE_TRAIN on a call through rax with subject btb_entry and provenance including cacm.btb.indirect.",
+        "c2.e1 at address 5556 is ARCH_BRANCH on the same call through rax with subject btb_entry and attribute func equal to 5104.",
+        "m_out registers c2.rax as persistent btb_entry on phys_key rax with encoding btb_target and width 16."
+      ],
+      "inferences": [
+        "Training and architectural branch observation co-locate at one indirect call site, consistent with BTB entry update tied to branch behavior.",
+        "The persistent 16-bit btb_target on rax likely reflects branch-target state associated with that indirect call rather than a generic memory or sequential control register."
+      ],
+      "note": "BTB indirect train/consume at single call site",
+      "status": "hypothesis"
+    }
+  ]
+}

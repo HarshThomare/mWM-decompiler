@@ -1,0 +1,26 @@
+{
+  "original_path": "/u/hthomare/mWM-decompiler/third_party/flexo/circuits/AES/aes_round.elf",
+  "original_source": "/u/hthomare/mWM-decompiler/third_party/flexo/circuits/AES/aes_round.c",
+  "anonymized_path": "/u/hthomare/mWM-decompiler/runs/flexo/aes/artifacts/input/anonymized.elf",
+  "strip_command": [
+    "strip",
+    "--strip-all",
+    "/u/hthomare/mWM-decompiler/runs/flexo/aes/artifacts/input/anonymized.elf"
+  ],
+  "strip_ok": true,
+  "anonymized_symbols": "none",
+  "sha256_original": "ed6a412c369a441a3537fc0437b8b27dad47ac0fafffa09715c74f45219687c4",
+  "sha256_anonymized": "73546738f3ac1fa1143010ce3e021f61c93a2b5c8110f3bca1fe860a67f49f24",
+  "original_size": 776544,
+  "anonymized_size": 772672,
+  "build": {
+    "method": "documented Flexo Docker/Podman compile (AES Makefile flags, inlining allowed)",
+    "wr_offset": 448,
+    "ret_wm_div_rounds": 5,
+    "flexo_circuit_wires": 4990,
+    "flexo_circuit_gates": 2524,
+    "original_dualgate_symbols": 30,
+    "original_weird_symbol": "__weird__aes_round"
+  },
+  "note": "Pipeline consumed only anonymized.elf. Original AES ELF was not stripped or renamed."
+}

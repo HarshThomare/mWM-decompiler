@@ -1,6 +1,6 @@
 Reply with only JSON. Use only these keys. If unsure use "unknown".
 
-Emit one C function for this verified typed µWM subgraph. No loops. Use uint32_t. Operators only: & | ^ ~ + ?:
+Emit one C function for this verified relation subgraph. No loops. Use uint32_t. Operators only: & | ^ ~ + ?:
 
 Subgraph:
 {ir}

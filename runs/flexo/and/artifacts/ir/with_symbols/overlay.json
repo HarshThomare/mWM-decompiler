@@ -1,0 +1,10 @@
+{
+  "and": {
+    "derived": "boolean_lut",
+    "compose": "boolean_lut",
+    "names_error": "name key not in IR: 'boolean_lut'",
+    "cluster_error": "cluster name 'cfg.call_timer' is not an identifier",
+    "render_c_error": "c identifiers not in IR: ['u']",
+    "deterministic_c": "/* recovered and derived=boolean_lut */\n#include <stdint.h>\n\nuint32_t and(uint32_t i0, uint32_t i1) {\n  if (i0 == 0 && i1 == 0) return 0;\n  if (i0 == 1 && i1 == 0) return 0;\n  if (i0 == 0 && i1 == 1) return 0;\n  if (i0 == 1 && i1 == 1) return 1;\n  return 0;\n}\n"
+  }
+}

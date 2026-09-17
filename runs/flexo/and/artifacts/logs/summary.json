@@ -1,0 +1,127 @@
+{
+  "started": "2026-09-15T19:26:43.851100+00:00",
+  "source_elf": "/u/hthomare/mWM-decompiler/third_party/flexo/circuits/gates/and.elf",
+  "llm_enabled": true,
+  "no_llm_flag": false,
+  "paths": {
+    "stripped": "harvest \u2192 lift_from_harvest(llm=True) on input/anonymized.elf",
+    "with_symbols": "DualGate / lift_from_elf on unstripped original (read-only)"
+  },
+  "strip_ok": true,
+  "sha256_original": "daa99ac9153f6df23877f40868f0476d18290f8968fe6640ba5f4e2b1ef0d5aa",
+  "sha256_anonymized": "21e44e36d5ab1577e3747daaa71bf120ffab7d62e7ea0d94a7c0dce6e574e32f",
+  "flexo_compile": {
+    "wires": 5,
+    "gates": 1,
+    "dualgate_symbols_unstripped": 1,
+    "weird_symbol": "_Z12__weird__andbbRb",
+    "wr_offset": 576,
+    "ret_wm_div_rounds": 5
+  },
+  "c_diff_identical": false,
+  "c_diff_with_symbols_identical": false,
+  "harvest": {
+    "source": "/u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/input/anonymized.elf",
+    "n_events": 19,
+    "n_fragments": 3,
+    "n_funcs": 10,
+    "event_kinds": {
+      "ARCH_BRANCH": 3,
+      "WINDOW_OPEN": 1,
+      "ARCH_COMPUTE": 6,
+      "STATE_CLEAR": 4,
+      "WINDOW_EXTEND": 2,
+      "STATE_OBSERVE": 2,
+      "STATE_READ": 1
+    },
+    "fragment_derived": {
+      "unknown": 3
+    },
+    "fragment_validation": {
+      "unresolved": 3
+    },
+    "fragment_event_counts": {
+      "c1": 106,
+      "c0": 4,
+      "c2": 2
+    },
+    "dual_gate": false
+  },
+  "fragment_event_counts": {
+    "c1": 106,
+    "c0": 4,
+    "c2": 2
+  },
+  "ir": {
+    "path": "stripped",
+    "n_nets": 0,
+    "n_relations": 0,
+    "derived": {
+      "unknown": 3
+    },
+    "validation": {
+      "unresolved": 3
+    },
+    "n_rejected": 0,
+    "lift_error": null,
+    "uncertainty": "stripped DualGate symbols; native adapters abstained; no LUT invented"
+  },
+  "with_symbols": {
+    "path": "unstripped DualGate / lift_from_elf",
+    "source": "/u/hthomare/mWM-decompiler/third_party/flexo/circuits/gates/and.elf",
+    "harvest": {
+      "n_events": 19,
+      "n_fragments": 3,
+      "n_funcs": 10,
+      "event_kinds": {
+        "ARCH_BRANCH": 3,
+        "WINDOW_OPEN": 1,
+        "ARCH_COMPUTE": 6,
+        "STATE_CLEAR": 4,
+        "WINDOW_EXTEND": 2,
+        "STATE_OBSERVE": 2,
+        "STATE_READ": 1
+      },
+      "fragment_derived": {
+        "unknown": 3
+      },
+      "fragment_validation": {
+        "unresolved": 3
+      },
+      "fragment_event_counts": {
+        "c1": 106,
+        "c0": 4,
+        "c2": 2
+      },
+      "dual_gate": true
+    },
+    "n_nets": 1,
+    "n_relations": 1,
+    "n_lut_nets": 1,
+    "derived": {
+      "boolean_lut": 1
+    },
+    "validation": {
+      "confirmed": 1
+    },
+    "n_rejected": 0,
+    "lift_error": null,
+    "recovered_c": "/u/hthomare/mWM-decompiler/runs/flexo/and/artifacts/c/recovered_with_symbols.c"
+  },
+  "llm": {
+    "success": true,
+    "key_present": true,
+    "n_hypotheses": 3,
+    "n_with_form": 3,
+    "n_errors": 0,
+    "error": null
+  },
+  "c": {
+    "recovered_bytes": 40,
+    "expected_bytes": 174,
+    "identical": false,
+    "with_symbols_bytes": 260,
+    "with_symbols_identical": false
+  },
+  "finished": "2026-09-15T19:28:04.533633+00:00"
+}
